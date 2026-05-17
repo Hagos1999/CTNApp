@@ -8,6 +8,7 @@ import '../../data/providers/auth_providers.dart';
 import '../../data/providers/sensor_providers.dart';
 import '../../data/repositories/sensor_repository.dart';
 import '../../routing/app_router.dart';
+import '../../core/services/notification_service.dart';
 import 'widgets/device_id_input.dart';
 
 /// Settings screen with device config, data source info, and logout.
@@ -86,6 +87,91 @@ class SettingsScreen extends ConsumerWidget {
                         side: const BorderSide(color: AppColors.offline),
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppDimensions.lg),
+
+            // ── Notifications ─────────────────────────────────
+            _SectionHeader(title: 'Notifications'),
+            const SizedBox(height: AppDimensions.md),
+            _SettingsCard(
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _sendTestNotification(context),
+                      icon: const Icon(Icons.notifications_active_rounded),
+                      label: const Text('Send Test Notification'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.gold,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppDimensions.md,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDimensions.radiusMd),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppDimensions.md),
+                  const Divider(color: AppColors.divider),
+                  const SizedBox(height: AppDimensions.sm),
+                  Text(
+                    'SIMULATE ALERTS',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.textMuted,
+                          letterSpacing: 1.5,
+                        ),
+                  ),
+                  const SizedBox(height: AppDimensions.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _SimulateButton(
+                          label: 'Offline',
+                          icon: Icons.wifi_off_rounded,
+                          color: AppColors.offline,
+                          onTap: () => _simulateOffline(context),
+                        ),
+                      ),
+                      const SizedBox(width: AppDimensions.sm),
+                      Expanded(
+                        child: _SimulateButton(
+                          label: 'High V',
+                          icon: Icons.electric_bolt_rounded,
+                          color: const Color(0xFFFF6B35),
+                          onTap: () => _simulateHighVoltage(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimensions.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _SimulateButton(
+                          label: 'Low PF',
+                          icon: Icons.trending_down_rounded,
+                          color: const Color(0xFFFF6B35),
+                          onTap: () => _simulateLowPF(context),
+                        ),
+                      ),
+                      const SizedBox(width: AppDimensions.sm),
+                      Expanded(
+                        child: _SimulateButton(
+                          label: 'Milestone',
+                          icon: Icons.emoji_events_rounded,
+                          color: AppColors.gold,
+                          onTap: () => _simulateMilestone(context),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -184,6 +270,46 @@ class SettingsScreen extends ConsumerWidget {
         context.go(AppRoutes.login);
       }
     }
+  }
+
+  void _sendTestNotification(BuildContext context) {
+    NotificationService.instance.sendTestNotification();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Test notification sent! Check your notification shade.'),
+        backgroundColor: AppColors.gold,
+      ),
+    );
+  }
+
+  void _simulateOffline(BuildContext context) {
+    NotificationService.instance.notifyDeviceOffline('ESP32-PZEM');
+    _showSimulatedSnack(context, 'Device Offline alert sent');
+  }
+
+  void _simulateHighVoltage(BuildContext context) {
+    NotificationService.instance.notifyHighVoltage(263.5);
+    _showSimulatedSnack(context, 'High Voltage alert sent');
+  }
+
+  void _simulateLowPF(BuildContext context) {
+    NotificationService.instance.notifyLowPowerFactor(0.72);
+    _showSimulatedSnack(context, 'Low Power Factor alert sent');
+  }
+
+  void _simulateMilestone(BuildContext context) {
+    NotificationService.instance.notifyEnergyMilestone(5.23);
+    _showSimulatedSnack(context, 'Energy Milestone alert sent');
+  }
+
+  void _showSimulatedSnack(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.cardBgElevated,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   String _dataSourceLabel(DataSource source) {
@@ -294,6 +420,57 @@ class _InfoRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact simulate button for triggering test alerts.
+class _SimulateButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SimulateButton({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimensions.md,
+            horizontal: AppDimensions.sm,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
