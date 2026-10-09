@@ -6,8 +6,8 @@ import 'core/constants/app_strings.dart';
 import 'core/services/notification_monitor.dart';
 
 /// Root widget wrapping the app with the GoRouter and dark theme.
-class WattApp extends ConsumerWidget {
-  const WattApp({super.key});
+class CTNApp extends ConsumerWidget {
+  const CTNApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +19,7 @@ class WattApp extends ConsumerWidget {
     return MaterialApp.router(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
       routerConfig: router,
     );
   }

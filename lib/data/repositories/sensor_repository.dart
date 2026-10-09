@@ -2,141 +2,127 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/sensor_reading.dart';
 import 'supabase_data_repository.dart';
-import 'firebase_data_repository.dart';
 
 /// Which backend is currently serving data.
-enum DataSource { supabase, firebase, none }
+enum DataSource { supabase, none }
 
-/// Orchestrates data access: tries Supabase first, falls back to Firebase.
+/// Fetches sensor data from Supabase with mock fallback when offline.
 class SensorRepository {
   final SupabaseDataRepository _supabaseRepo;
-  final FirebaseDataRepository? _firebaseRepo;
-
-  DataSource _activeSource = DataSource.none;
 
   SensorRepository({
     required SupabaseDataRepository supabaseRepo,
-    FirebaseDataRepository? firebaseRepo,
-  })  : _supabaseRepo = supabaseRepo,
-        _firebaseRepo = firebaseRepo;
+  }) : _supabaseRepo = supabaseRepo;
 
-  /// Which backend is currently active.
-  DataSource get activeSource => _activeSource;
-
-  /// Fetch the latest reading with automatic fallback.
+  /// Fetch the latest reading.
   Future<SensorReading?> getLatestReading(String deviceId) async {
-    // Try Supabase first
     try {
       final reading = await _supabaseRepo
           .getLatestReading(deviceId)
           .timeout(const Duration(seconds: 10));
-      _activeSource = DataSource.supabase;
       return reading;
     } catch (e) {
-      debugPrint('[SensorRepository] Supabase failed: $e — trying Firebase');
+      debugPrint('[SensorRepository] Supabase failed: $e');
     }
-
-    // Fallback to Firebase
-    if (_firebaseRepo != null) {
-      try {
-        final reading = await _firebaseRepo!
-            .getLatestReading(deviceId)
-            .timeout(const Duration(seconds: 10));
-        _activeSource = DataSource.firebase;
-        return reading;
-      } catch (e) {
-        debugPrint('[SensorRepository] Firebase also failed: $e');
-      }
-    }
-    
-    _activeSource = DataSource.none;
     return null;
   }
 
-  /// Stream the latest reading with automatic fallback.
-  ///
-  /// Tries Supabase Realtime first; if it errors, switches to Firebase.
+  /// Stream the latest reading with mock fallback when the device is offline.
+  /// Polls Supabase every 10s. Switches between real and mock based on
+  /// whether fresh data is detected (last reading within 30s).
   Stream<SensorReading> streamLatestReading(String deviceId) {
-    late StreamController<SensorReading> controller;
-    StreamSubscription<SensorReading>? subscription;
+    final controller = StreamController<SensorReading>();
+    Timer? pollTimer;
+    Timer? mockTimer;
+    StreamSubscription<SensorReading>? realSub;
+    DateTime? lastRealTimestamp;
+    var inMockMode = true;
 
-    controller = StreamController<SensorReading>(
-      onListen: () {
-        // Start with Supabase
-        _activeSource = DataSource.supabase;
-        subscription = _supabaseRepo.streamLatestReading(deviceId).listen(
-          (reading) {
-            _activeSource = DataSource.supabase;
-            controller.add(reading);
-          },
-          onError: (error) {
-            debugPrint(
-              '[SensorRepository] Supabase stream error: $error — switching to Firebase',
-            );
-            subscription?.cancel();
+    void emitReal(SensorReading reading) {
+      lastRealTimestamp = reading.createdAt;
+      if (inMockMode) {
+        inMockMode = false;
+        mockTimer?.cancel();
+        debugPrint('[SensorRepository] Switched to real data');
+      }
+      if (!controller.isClosed) {
+        controller.add(reading);
+      }
+    }
 
-            // Switch to Firebase if available
-            if (_firebaseRepo != null) {
-              _activeSource = DataSource.firebase;
-              subscription = _firebaseRepo!.streamLatestReading(deviceId).listen(
-                (reading) {
-                  _activeSource = DataSource.firebase;
-                  controller.add(reading);
-                },
-                onError: (fbError) {
-                  debugPrint(
-                    '[SensorRepository] Firebase stream error: $fbError',
-                  );
-                  _activeSource = DataSource.none;
-                  controller.addError(fbError);
-                },
-              );
-            } else {
-              _activeSource = DataSource.none;
-              controller.addError(error);
-            }
-          },
-        );
+    void emitMock() {
+      if (inMockMode && !controller.isClosed) {
+        controller.add(SensorReading.mock(deviceId));
+      }
+    }
+
+    void checkFreshness() {
+      final isStale = lastRealTimestamp == null ||
+          DateTime.now().difference(lastRealTimestamp!).inSeconds > 30;
+      if (isStale && !inMockMode) {
+        debugPrint('[SensorRepository] Data stale — switching to mock');
+        inMockMode = true;
+        mockTimer = Timer.periodic(const Duration(seconds: 3), (_) => emitMock());
+        emitMock();
+      }
+    }
+
+    void poll() async {
+      try {
+        final reading = await _supabaseRepo
+            .getLatestReading(deviceId)
+            .timeout(const Duration(seconds: 8));
+        if (reading != null) {
+          emitReal(reading);
+          checkFreshness();
+          return;
+        }
+      } catch (_) {}
+      checkFreshness();
+    }
+
+    // Realtime stream for low-latency updates
+    realSub = _supabaseRepo.streamLatestReading(deviceId).listen(
+      (reading) {
+        debugPrint('[SensorRepository] Realtime event received');
+        emitReal(reading);
       },
-      onCancel: () {
-        subscription?.cancel();
+      onError: (error) {
+        debugPrint('[SensorRepository] Stream error: $error');
       },
     );
+
+    // Start in mock mode, poll immediately to check for existing data
+    inMockMode = true;
+    mockTimer = Timer.periodic(const Duration(seconds: 3), (_) => emitMock());
+    poll();
+
+    // Continuous polling every 10s
+    pollTimer = Timer.periodic(const Duration(seconds: 10), (_) => poll());
+
+    controller.onCancel = () {
+      pollTimer?.cancel();
+      mockTimer?.cancel();
+      realSub?.cancel();
+    };
 
     return controller.stream;
   }
 
-  /// Fetch historical readings with fallback.
+  /// Fetch historical readings.
   Future<List<SensorReading>> getReadings(
     String deviceId, {
     required DateTime from,
     required DateTime to,
   }) async {
-    // Try Supabase first
     try {
       final readings = await _supabaseRepo
           .getReadings(deviceId, from: from, to: to)
           .timeout(const Duration(seconds: 15));
-      _activeSource = DataSource.supabase;
       return readings;
     } catch (e) {
       debugPrint('[SensorRepository] Supabase history failed: $e');
     }
-
-    // Fallback to Firebase
-    if (_firebaseRepo != null) {
-      try {
-        final readings = await _firebaseRepo!
-            .getReadings(deviceId, from: from, to: to)
-            .timeout(const Duration(seconds: 15));
-        _activeSource = DataSource.firebase;
-        return readings;
-      } catch (e) {
-        debugPrint('[SensorRepository] Firebase history also failed: $e');
-      }
-    }
-    
-    _activeSource = DataSource.none;
     return [];
   }
 }

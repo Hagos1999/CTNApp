@@ -44,6 +44,14 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Firebase Android config (download your own from Firebase console)
+/android/app/google-services.json
+
 # Environment Variables
 .env
-.env*
+.env.local
+.env.*.local
+
+# Local tooling and installed dependencies
+.commandcode/
+node_modules/

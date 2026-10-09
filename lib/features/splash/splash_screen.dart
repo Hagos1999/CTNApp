@@ -6,7 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../routing/app_router.dart';
 
-/// Splash screen with animated WATT Protocol logo.
+/// Splash screen with animated CTNApp logo.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -94,8 +94,8 @@ class _SplashScreenState extends State<SplashScreen>
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.gold
-                                .withValues(alpha: 0.3 * _glowOpacity.value),
+                            color: AppColors.green
+                                .withValues(alpha: 0.45 * _glowOpacity.value),
                             blurRadius: 80,
                             spreadRadius: 10,
                           ),
@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(32),
                         child: Image.asset(
-                          'assets/images/watt_logo.jpg',
+                          'assets/images/ctnAppLogoTransparent.png',
                           width: 240,
                           height: 240,
                           fit: BoxFit.contain,
@@ -117,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen>
                       AppStrings.appName,
                       style:
                           Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                color: AppColors.gold,
+                                color: AppColors.green,
                                 letterSpacing: 2,
                               ),
                     ),

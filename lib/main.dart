@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/config/supabase_config.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/fcm_service.dart';
 import 'app.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -43,12 +44,13 @@ Future<void> main() async {
     // App can still work with Supabase as primary
   }
 
-  // Initialize local notifications
+  // Initialize notifications
   await NotificationService.instance.init();
+  await FCMService.instance.init();
 
   runApp(
     const ProviderScope(
-      child: WattApp(),
+      child: CTNApp(),
     ),
   );
 }

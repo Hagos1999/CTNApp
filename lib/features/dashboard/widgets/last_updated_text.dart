@@ -5,8 +5,9 @@ import '../../../core/utils/date_utils.dart';
 /// Displays the last updated timestamp with a clock icon.
 class LastUpdatedText extends StatelessWidget {
   final DateTime? lastUpdated;
+  final bool isMock;
 
-  const LastUpdatedText({super.key, this.lastUpdated});
+  const LastUpdatedText({super.key, this.lastUpdated, this.isMock = false});
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +18,16 @@ class LastUpdatedText extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
-          Icons.access_time_rounded,
+        Icon(
+          isMock ? Icons.science_rounded : Icons.access_time_rounded,
           size: 14,
-          color: AppColors.textMuted,
+          color: isMock ? AppColors.warning : AppColors.textMuted,
         ),
         const SizedBox(width: 4),
         Text(
-          text,
+          isMock ? 'Demo mode — $text' : text,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textMuted,
+                color: isMock ? AppColors.warning : AppColors.textMuted,
               ),
         ),
       ],

@@ -1,10 +1,11 @@
-/// Static string constants for WATT Smart Meter
+/// Static string constants for CTNApp
 class AppStrings {
   AppStrings._();
 
-  static const String appName = 'WATT Smart Meter';
+  static const String appName = 'CTNApp';
   static const String appTagline = 'Solar Energy Monitoring';
-  static const String poweredBy = 'Powered by WATT Protocol';
+  static const String poweredBy = 'Powered by CTNApp';
+  static const String welcomeMessage = 'Monitor your energy usage in real-time.';
 
   // Auth
   static const String signIn = 'Sign In';

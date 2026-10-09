@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="watt_smart_meter"
+        android:label="CTNApp"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

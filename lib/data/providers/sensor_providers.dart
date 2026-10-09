@@ -1,9 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:firebase_database/firebase_database.dart';
 import '../models/sensor_reading.dart';
 import '../repositories/supabase_data_repository.dart';
-import '../repositories/firebase_data_repository.dart';
 import '../repositories/sensor_repository.dart';
 import 'settings_providers.dart';
 
@@ -12,20 +10,10 @@ final supabaseDataRepoProvider = Provider<SupabaseDataRepository>((ref) {
   return SupabaseDataRepository(Supabase.instance.client);
 });
 
-/// Firebase data repo instance.
-final firebaseDataRepoProvider = Provider<FirebaseDataRepository?>((ref) {
-  try {
-    return FirebaseDataRepository(FirebaseDatabase.instance);
-  } catch (_) {
-    return null;
-  }
-});
-
-/// Orchestrated sensor repository (Supabase → Firebase fallback).
+/// Sensor repository (Supabase only).
 final sensorRepositoryProvider = Provider<SensorRepository>((ref) {
   return SensorRepository(
     supabaseRepo: ref.watch(supabaseDataRepoProvider),
-    firebaseRepo: ref.watch(firebaseDataRepoProvider),
   );
 });
 
@@ -36,18 +24,17 @@ final latestReadingProvider = StreamProvider<SensorReading>((ref) {
   return repo.streamLatestReading(deviceId);
 });
 
-/// Active data source (supabase / firebase / none).
+/// Active data source (always supabase).
 final dataSourceProvider = Provider<DataSource>((ref) {
-  // Touch the stream to ensure repo has determined the source
-  ref.watch(latestReadingProvider);
-  return ref.watch(sensorRepositoryProvider).activeSource;
+  return DataSource.supabase;
 });
 
-/// Whether the device is online (last reading within 30 seconds).
+/// Whether the device is online (last reading within 30 seconds and not mock data).
 final deviceOnlineProvider = Provider<bool>((ref) {
   final readingAsync = ref.watch(latestReadingProvider);
   return readingAsync.whenOrNull(
         data: (reading) {
+          if (reading.isMock) return false;
           final diff = DateTime.now().difference(reading.createdAt);
           return diff.inSeconds < 30;
         },

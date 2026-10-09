@@ -31,12 +31,8 @@ class SupabaseDataRepository {
         .eq('device_id', deviceId)
         .order('created_at', ascending: false)
         .limit(1)
-        .map((rows) {
-          if (rows.isEmpty) {
-            throw Exception('No readings available');
-          }
-          return SensorReading.fromJson(rows.first);
-        });
+        .where((rows) => rows.isNotEmpty)
+        .map((rows) => SensorReading.fromJson(rows.first));
   }
 
   /// Fetch readings within a date range for charts/history.

@@ -107,7 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.gold.withValues(alpha: 0.2),
+                            color: AppColors.green.withValues(alpha: 0.2),
                             blurRadius: 40,
                             spreadRadius: 10,
                           ),
@@ -116,7 +116,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Image.asset(
-                          'assets/images/watt_logo.jpg',
+                          'assets/images/ctnAppLogoTransparent.png',
                           width: 100,
                           height: 100,
                           fit: BoxFit.cover,
@@ -131,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium
-                          ?.copyWith(color: AppColors.gold),
+                          ?.copyWith(color: AppColors.green),
                     ),
                     const SizedBox(height: AppDimensions.sm),
                     Text(
@@ -215,8 +215,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               onPressed: _isLoading ? null : _signIn,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _isLoading
-                                    ? AppColors.mutedGold
-                                    : AppColors.gold,
+                                    ? AppColors.lightGreen
+                                    : AppColors.green,
                               ),
                               child: _isLoading
                                   ? const SizedBox(

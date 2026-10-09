@@ -1,4 +1,4 @@
-/// Consistent spacing and sizing tokens for WATT Smart Meter
+/// Consistent spacing and sizing tokens for CTNApp
 class AppDimensions {
   AppDimensions._();
 

@@ -315,9 +315,7 @@ class SettingsScreen extends ConsumerWidget {
   String _dataSourceLabel(DataSource source) {
     switch (source) {
       case DataSource.supabase:
-        return 'Supabase (Primary)';
-      case DataSource.firebase:
-        return 'Firebase (Fallback)';
+        return 'Supabase';
       case DataSource.none:
         return 'Disconnected';
     }
@@ -326,7 +324,6 @@ class SettingsScreen extends ConsumerWidget {
   String _connectionStatus(DataSource source) {
     switch (source) {
       case DataSource.supabase:
-      case DataSource.firebase:
         return 'Connected';
       case DataSource.none:
         return 'Disconnected';
@@ -336,7 +333,6 @@ class SettingsScreen extends ConsumerWidget {
   Color _connectionColor(DataSource source) {
     switch (source) {
       case DataSource.supabase:
-      case DataSource.firebase:
         return AppColors.online;
       case DataSource.none:
         return AppColors.offline;

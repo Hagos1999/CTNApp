@@ -45,10 +45,14 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Demo mode banner
+                if (reading.isMock) _buildDemoBanner(context),
                 // Last updated
-                LastUpdatedText(lastUpdated: reading.createdAt),
+                LastUpdatedText(
+                  lastUpdated: reading.createdAt,
+                  isMock: reading.isMock,
+                ),
                 const SizedBox(height: AppDimensions.md),
-
                 // Reading cards grid
                 GridView.count(
                   crossAxisCount: 2,
@@ -116,13 +120,17 @@ class DashboardScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.cloud_done_rounded,
+                        reading.isMock
+                            ? Icons.science_rounded
+                            : Icons.cloud_done_rounded,
                         color: AppColors.gold.withValues(alpha: 0.7),
                         size: AppDimensions.iconSm,
                       ),
                       const SizedBox(width: AppDimensions.sm),
                       Text(
-                        'Device: ${reading.deviceId}',
+                        reading.isMock
+                            ? 'Demo mode — connect ESP32 for live data'
+                            : 'Device: ${reading.deviceId}',
                         style:
                             Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: AppColors.textMuted,
@@ -204,6 +212,42 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDemoBanner(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppDimensions.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.md,
+        vertical: AppDimensions.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        border: Border.all(
+          color: AppColors.warning.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.science_rounded,
+            size: 16,
+            color: AppColors.warning,
+          ),
+          const SizedBox(width: AppDimensions.sm),
+          Expanded(
+            child: Text(
+              'Demo mode — showing realistic sample readings. Connect ESP32 for live data.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.warning,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

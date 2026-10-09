@@ -3,22 +3,22 @@ import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_dimensions.dart';
 
-/// WATT Smart Meter dark theme with gold accents
+/// CTNApp light theme with green accents
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.scaffoldBg,
 
       // ── Color Scheme ────────────────────────────────────────
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.gold,
-        onPrimary: Colors.black,
-        secondary: AppColors.darkGold,
-        onSecondary: Colors.black,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.green,
+        onPrimary: Colors.white,
+        secondary: AppColors.darkGreen,
+        onSecondary: Colors.white,
         surface: AppColors.cardBg,
         onSurface: AppColors.textPrimary,
         error: AppColors.offline,
@@ -72,7 +72,7 @@ class AppTheme {
         labelLarge: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: AppColors.gold,
+          color: AppColors.green,
           letterSpacing: 0.5,
         ),
       ),
@@ -86,9 +86,9 @@ class AppTheme {
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: AppColors.gold,
+          color: AppColors.green,
         ),
-        iconTheme: const IconThemeData(color: AppColors.gold),
+        iconTheme: const IconThemeData(color: AppColors.green),
       ),
 
       // ── Card ────────────────────────────────────────────────
@@ -108,7 +108,7 @@ class AppTheme {
       // ── Elevated Button ─────────────────────────────────────
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.gold,
+          backgroundColor: AppColors.green,
           foregroundColor: Colors.black,
           elevation: 0,
           padding: const EdgeInsets.symmetric(
@@ -128,8 +128,8 @@ class AppTheme {
       // ── Outlined Button ─────────────────────────────────────
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.gold,
-          side: const BorderSide(color: AppColors.gold),
+          foregroundColor: AppColors.green,
+          side: const BorderSide(color: AppColors.green),
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.lg,
             vertical: AppDimensions.md,
@@ -181,7 +181,7 @@ class AppTheme {
       // ── Bottom Navigation ───────────────────────────────────
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.bottomNavBg,
-        selectedItemColor: AppColors.gold,
+        selectedItemColor: AppColors.green,
         unselectedItemColor: AppColors.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
@@ -198,7 +198,7 @@ class AppTheme {
       // ── Chip ────────────────────────────────────────────────
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceDark,
-        selectedColor: AppColors.gold,
+        selectedColor: AppColors.green,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w500,

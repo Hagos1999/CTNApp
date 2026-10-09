@@ -16,8 +16,8 @@ class NotificationService {
   bool _initialized = false;
 
   // ── Notification channel IDs ───────────────────────────────
-  static const String _channelId = 'watt_alerts';
-  static const String _channelName = 'WATT Alerts';
+  static const String _channelId = 'ctnapp_alerts';
+  static const String _channelName = 'CTNApp Alerts';
   static const String _channelDesc =
       'Alerts for device status and abnormal readings';
 
@@ -86,9 +86,9 @@ class NotificationService {
       priority: Priority.high,
       ticker: ticker,
       icon: '@mipmap/launcher_icon',
-      color: const Color(0xFFFFD700), // Gold
+      color: const Color(0xFF4CAF50), // Green
       enableLights: true,
-      ledColor: const Color(0xFFFFD700),
+      ledColor: const Color(0xFF4CAF50),
       ledOnMs: 1000,
       ledOffMs: 500,
     );
@@ -132,7 +132,7 @@ class NotificationService {
       title: '⚡ ${AppStrings.appName}',
       body:
           'Notifications are working! You will receive alerts for abnormal readings.',
-      ticker: 'WATT Test',
+      ticker: 'CTNApp Test',
       payload: 'test',
     );
   }
